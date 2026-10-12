@@ -5,7 +5,7 @@ Download FlyWire neuron annotations and build a mapping from neuron index
 Source: Schlegel et al. 2024, Nature - "Whole-brain annotation and
 multi-connectome cell typing of Drosophila"
 
-Output: neuron_annotations.npz
+Output: flywire_v783.annotations.npz
   - root_ids:     int64[N]   root_id for each neuron index
   - super_class:  U30[N]     e.g. 'sensory', 'motor', 'central', 'optic'
   - cell_class:   U60[N]     e.g. 'gustatory', 'olfactory', 'mechanosensory'
@@ -31,7 +31,7 @@ ANNOTATION_URL = (
 )
 
 COMPLETENESS_CSV = "Completeness_783.csv"
-OUTPUT_FILE = "neuron_annotations.npz"
+OUTPUT_FILE = "flywire_v783.annotations.npz"
 ANNOTATION_CACHE = "flywire_annotations_v783.tsv"
 
 
@@ -390,6 +390,7 @@ def main():
     print(f"\nStep 7: Saving to {OUTPUT_FILE}...")
 
     save_dict = {}
+    save_dict['dataset_id'] = np.array('flywire:v783')
     for key, arr in arrays.items():
         save_dict[key] = arr
 

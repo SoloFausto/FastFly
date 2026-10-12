@@ -4,6 +4,12 @@ Connectivity_783.parquet
 flywire_annotations_v783.tsv
 neuron_annotations.npz
 Completeness_783.csv
+flywire_v783.annotations.npz
+flywire_v783.manifest.json
+male_cns_data/
+male_cns_v1.bin
+male_cns_v1.annotations.npz
+male_cns_v1.manifest.json
 
 # Build artifacts
 *.exe
@@ -12,9 +18,6 @@ Completeness_783.csv
 *.exp
 *.lib
 *.pdb
-*.dll
-*.so
-build/
 
 # Python
 __pycache__/
@@ -22,7 +25,3 @@ __pycache__/
 
 # Misc
 nul
-app_server.py
-
-# profiling
-profiling/

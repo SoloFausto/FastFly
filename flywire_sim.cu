@@ -1,13 +1,14 @@
 // ================================================================
-// FlyWire Connectome GPU Simulator
+// FastFly Connectome GPU Simulator
 // ================================================================
 //
-// Simulates the complete Drosophila (fruit fly) brain connectome
-// as fast as possible on a single consumer GPU.
+// Simulates a Drosophila connectome as fast as possible on a single
+// consumer GPU. Binary inputs may contain MaleCNS, FlyWire, or compatible
+// synthetic connectivity.
 //
 // Supports two data modes:
-//   --data flywire_v783.bin   Load real FlyWire connectome (from download_connectome.py)
-//   (no --data flag)          Generate synthetic connectome matching FlyWire statistics
+//   --data male_cns_v1.bin   Load a FastFly binary connectome
+//   (no --data flag)         Generate a legacy-size synthetic connectome
 //
 // Architecture:
 //   - Push-model spike propagation (only touches active synapses)
@@ -658,10 +659,7 @@ void print_gpu_info() {
     printf("========================================\n");
     printf("GPU: %s\n", prop.name);
     printf("  SMs:            %d\n", prop.multiProcessorCount);
-    printf("  Clock:          %d MHz\n", prop.clockRate / 1000);
     printf("  Memory:         %zu MB\n", prop.totalGlobalMem / (1024 * 1024));
-    printf("  Bandwidth:      %.0f GB/s\n",
-           2.0 * prop.memoryClockRate * (prop.memoryBusWidth / 8) / 1.0e6);
     printf("  L2 Cache:       %d KB\n", prop.l2CacheSize / 1024);
     printf("  Compute cap:    %d.%d\n", prop.major, prop.minor);
     printf("  Max threads/SM: %d\n", prop.maxThreadsPerMultiProcessor);
@@ -698,10 +696,10 @@ int main(int argc, char** argv) {
         else if (strcmp(argv[i], "--seed") == 0 && i + 1 < argc)
             cfg.seed = (unsigned)atoi(argv[++i]);
         else if (strcmp(argv[i], "--help") == 0) {
-            printf("FlyWire Connectome GPU Simulator\n\n");
+            printf("FastFly Connectome GPU Simulator\n\n");
             printf("Usage: flywire_sim [options]\n\n");
-            printf("  --data FILE    Load real connectome from binary file\n");
-            printf("                 (generate with: python download_connectome.py)\n");
+            printf("  --data FILE    Load a FastFly binary connectome\n");
+            printf("                 (generate with download_male_cns.py or download_connectome.py)\n");
             printf("  --timesteps N  Benchmark timesteps (default: %d)\n", DEFAULT_TIMESTEPS);
             printf("  --warmup N     Warmup timesteps (default: %d)\n", DEFAULT_WARMUP_STEPS);
             printf("  --seed N       Random seed (default: 42)\n");
@@ -712,7 +710,7 @@ int main(int argc, char** argv) {
 
     printf("\n");
     printf("================================================================\n");
-    printf("  FlyWire Connectome GPU Simulator\n");
+    printf("  FastFly Connectome GPU Simulator\n");
     printf("================================================================\n\n");
 
     print_gpu_info();
@@ -725,14 +723,14 @@ int main(int argc, char** argv) {
     auto t0 = std::chrono::high_resolution_clock::now();
 
     if (cfg.use_real_data) {
-        printf("DATA SOURCE: Real FlyWire connectome (v783)\n\n");
+        printf("DATA SOURCE: %s\n\n", cfg.data_file);
         if (!load_connectome_binary(cfg.data_file, h_offsets, h_targets, h_weights,
                                      cfg.num_neurons, cfg.num_synapses)) {
             return 1;
         }
     } else {
-        printf("DATA SOURCE: Synthetic (matching FlyWire statistics)\n");
-        printf("  Use --data flywire_v783.bin for real connectome data.\n\n");
+        printf("DATA SOURCE: Synthetic legacy-size connectome\n");
+        printf("  Use --data male_cns_v1.bin for the seamless brain + VNC.\n\n");
         generate_connectome(h_offsets, h_targets, h_weights,
                             cfg.num_neurons, (long long)cfg.num_synapses, cfg.seed);
     }
@@ -774,7 +772,7 @@ int main(int argc, char** argv) {
     printf("================================================================\n");
     printf("  BENCHMARK RESULTS (averaged over %d timesteps)\n", cfg.num_timesteps);
     if (cfg.use_real_data)
-        printf("  Data: Real FlyWire connectome v783\n");
+        printf("  Data: %s\n", cfg.data_file);
     else
         printf("  Data: Synthetic\n");
     printf("================================================================\n");

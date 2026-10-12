@@ -1,10 +1,10 @@
 """
-FlyWire Connectome Simulator — Web Server
+FastFly Connectome Simulator — Web Server
 
 Usage:
     pip install fastapi uvicorn[standard]
     python app_server.py                        # synthetic data
-    python app_server.py --data flywire_v783.bin
+    python app_server.py --data male_cns_v1.bin
 """
 
 import argparse
@@ -12,7 +12,6 @@ import asyncio
 import json
 import os
 import sys
-from contextlib import asynccontextmanager
 
 from fastapi import FastAPI, WebSocket, WebSocketDisconnect
 from fastapi.responses import FileResponse, JSONResponse
@@ -20,7 +19,7 @@ from fastapi.staticfiles import StaticFiles
 
 from sim_engine import SimEngine
 
-parser = argparse.ArgumentParser(description="FlyWire Simulator Web Server")
+parser = argparse.ArgumentParser(description="FastFly Simulator Web Server")
 parser.add_argument("--data", help="Binary connectome file")
 parser.add_argument("--host", default="127.0.0.1")
 parser.add_argument("--port", type=int, default=8000)
@@ -30,26 +29,12 @@ print("\nInitializing simulation engine...")
 engine = SimEngine(data_file=args.data)
 print(f"Engine ready: {engine.n_neurons} neurons, {engine.n_synapses} synapses\n")
 
-@asynccontextmanager
-async def lifespan(app):
-    try:
-        yield
-    finally:
-        async with sim_control_lock:
-            try:
-                await stop_simulation()
-            finally:
-                await asyncio.get_running_loop().run_in_executor(None, engine.close)
-
-
-app = FastAPI(title="FlyWire Simulator", lifespan=lifespan)
+app = FastAPI(title="FastFly Simulator")
 
 static_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), "static")
 app.mount("/static", StaticFiles(directory=static_dir), name="static")
 
 sim_running = False
-sim_task = None
-sim_control_lock = asyncio.Lock()
 batch_size = 200
 clients: list[WebSocket] = []
 
@@ -104,24 +89,16 @@ async def sim_loop():
             break
 
 
-async def stop_simulation():
-    """Drain the running batch before another loop starts or the engine closes."""
-    global sim_running, sim_task
-    sim_running = False
-    if sim_task is not None:
-        await sim_task
-        sim_task = None
-
-
 @app.websocket("/ws")
 async def websocket_endpoint(ws: WebSocket):
-    global sim_running, sim_task, batch_size
+    global sim_running, batch_size
 
     await ws.accept()
     clients.append(ws)
 
     await ws.send_text(json.dumps({
         "type": "init",
+        "dataset_id": engine.dataset_id,
         "n_neurons": engine.n_neurons,
         "n_synapses": engine.n_synapses,
         "stimuli": engine.get_predefined_stimuli(),
@@ -140,25 +117,22 @@ async def websocket_endpoint(ws: WebSocket):
             cmd = msg.get("cmd")
 
             if cmd == "start":
-                async with sim_control_lock:
-                    if not sim_running:
-                        sim_running = True
-                        sim_task = asyncio.create_task(sim_loop())
-                        await broadcast({"type": "state", "running": True})
+                if not sim_running:
+                    sim_running = True
+                    await broadcast({"type": "state", "running": True})
+                    asyncio.create_task(sim_loop())
 
             elif cmd == "pause":
-                async with sim_control_lock:
-                    await stop_simulation()
-                    await broadcast({"type": "state", "running": False})
+                sim_running = False
+                await broadcast({"type": "state", "running": False})
 
             elif cmd == "step":
-                async with sim_control_lock:
-                    await stop_simulation()
-                    metrics = await asyncio.get_event_loop().run_in_executor(
-                        None, engine.step, batch_size
-                    )
-                    metrics["type"] = "metrics"
-                    await broadcast(metrics)
+                sim_running = False
+                metrics = await asyncio.get_event_loop().run_in_executor(
+                    None, engine.step, batch_size
+                )
+                metrics["type"] = "metrics"
+                await broadcast(metrics)
 
             elif cmd == "stimulus":
                 indices = msg.get("indices", [])

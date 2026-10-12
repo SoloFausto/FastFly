@@ -1,6 +1,6 @@
 """
 Download the real FlyWire connectome and convert to binary format
-for the oneAPI SYCL simulator.
+for the CUDA simulator.
 
 Source: Shiu et al. 2024, Nature - "A Drosophila computational brain
 model reveals sensorimotor processing"
@@ -10,7 +10,7 @@ Data: Materialization v783 (final proofread version)
   - Connectivity_783.parquet: edge list with integer indices + signed weights
   - Completeness_783.csv: neuron metadata (defines index mapping)
 
-Output: flywire_v783.bin (binary file for the oneAPI SYCL simulator)
+Output: flywire_v783.bin (binary file for CUDA simulator)
   Header:  magic(4) + version(4) + num_neurons(4) + num_synapses(4)
   Data:    offsets[N+1] (uint32) + targets[S] (uint32) + weights[S] (float32)
 
@@ -18,6 +18,7 @@ Requirements: pip install pandas pyarrow numpy requests
 """
 
 import os
+import json
 import sys
 import struct
 import time
@@ -212,6 +213,19 @@ def main():
 
         # Weights (float32, will be converted to FP16 on GPU)
         f.write(wt_normalized.tobytes())
+
+    manifest_file = os.path.splitext(output_file)[0] + ".manifest.json"
+    with open(manifest_file, "w", encoding="utf-8") as f:
+        json.dump({
+            "schema_version": "1.0",
+            "dataset_id": "flywire:v783",
+            "source_page": GITHUB_BASE,
+            "neuron_count": num_neurons,
+            "synapse_count": num_edges,
+            "annotation_file": "flywire_v783.annotations.npz",
+            "weight_model": "Shiu et al. signed connectivity",
+        }, f, indent=2, sort_keys=True)
+        f.write("\n")
 
     file_size = os.path.getsize(output_file)
     print(f"  File size: {file_size / 1e6:.1f} MB")

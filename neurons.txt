@@ -1,0 +1,242 @@
+[
+  {
+    "key": "eye_left",
+    "role": "upstream",
+    "label": "Left visual system",
+    "engine_group": "eye_left",
+    "selector": "((cell_class == 'visual') | (super_class == 'optic') | (super_class == 'visual_projection')) & (side == 'left')",
+    "fidelity": "coarse_proxy",
+    "notes": "Mixes optic-lobe processing stages; side is soma side, not a receptive-field guarantee.",
+    "available": true
+  },
+  {
+    "key": "eye_right",
+    "role": "upstream",
+    "label": "Right visual system",
+    "engine_group": "eye_right",
+    "selector": "((cell_class == 'visual') | (super_class == 'optic') | (super_class == 'visual_projection')) & (side == 'right')",
+    "fidelity": "coarse_proxy",
+    "notes": "Mixes optic-lobe processing stages; side is soma side, not a receptive-field guarantee.",
+    "available": true
+  },
+  {
+    "key": "visual_projection_left",
+    "role": "upstream",
+    "label": "Left visual projection",
+    "engine_group": null,
+    "selector": "(super_class == 'visual_projection') & (side == 'left')",
+    "fidelity": "candidate",
+    "notes": "Recommended visual input proxy, but no dedicated bsens group is generated yet.",
+    "available": false
+  },
+  {
+    "key": "visual_projection_right",
+    "role": "upstream",
+    "label": "Right visual projection",
+    "engine_group": null,
+    "selector": "(super_class == 'visual_projection') & (side == 'right')",
+    "fidelity": "candidate",
+    "notes": "Recommended visual input proxy, but no dedicated bsens group is generated yet.",
+    "available": false
+  },
+  {
+    "key": "antenna_olf_left",
+    "role": "upstream",
+    "label": "Left antennal olfaction",
+    "engine_group": "antenna_olf_left",
+    "selector": "(cell_class == 'olfactory') & (side == 'left')",
+    "fidelity": "direct_class",
+    "notes": "Direct sensory population at the available annotation granularity.",
+    "available": true
+  },
+  {
+    "key": "antenna_olf_right",
+    "role": "upstream",
+    "label": "Right antennal olfaction",
+    "engine_group": "antenna_olf_right",
+    "selector": "(cell_class == 'olfactory') & (side == 'right')",
+    "fidelity": "direct_class",
+    "notes": "Direct sensory population at the available annotation granularity.",
+    "available": true
+  },
+  {
+    "key": "antenna_mech_left",
+    "role": "upstream",
+    "label": "Left antennal mechanosensation",
+    "engine_group": "antenna_mech_left",
+    "selector": "(cell_class == 'mechanosensory') & (side == 'left')",
+    "fidelity": "coarse_proxy",
+    "notes": "The generated mask does not enforce antennal nerve (AN) and mixes touch, vibration, wind, and auditory channels.",
+    "available": true
+  },
+  {
+    "key": "antenna_mech_right",
+    "role": "upstream",
+    "label": "Right antennal mechanosensation",
+    "engine_group": "antenna_mech_right",
+    "selector": "(cell_class == 'mechanosensory') & (side == 'right')",
+    "fidelity": "coarse_proxy",
+    "notes": "The generated mask does not enforce antennal nerve (AN) and mixes touch, vibration, wind, and auditory channels.",
+    "available": true
+  },
+  {
+    "key": "proboscis_gust",
+    "role": "upstream",
+    "label": "Proboscis gustation",
+    "engine_group": "proboscis_gust",
+    "selector": "cell_class == 'gustatory'",
+    "fidelity": "direct_class",
+    "notes": "Taste is pooled across sides and valences; this is not specifically a sugar or appetitive channel.",
+    "available": true
+  },
+  {
+    "key": "thermo",
+    "role": "upstream",
+    "label": "Thermosensation",
+    "engine_group": "thermo",
+    "selector": "(cell_class == 'thermosensory') | (cell_class == 'thermo-hygrosensory')",
+    "fidelity": "direct_class",
+    "notes": "Pooled across side and warm/cool response sign.",
+    "available": true
+  },
+  {
+    "key": "hygro",
+    "role": "upstream",
+    "label": "Hygrosensation",
+    "engine_group": "hygro",
+    "selector": "cell_class == 'hygrosensory'",
+    "fidelity": "direct_class",
+    "notes": "Pooled across side and dry/moist response sign.",
+    "available": true
+  },
+  {
+    "key": "body_left",
+    "role": "upstream",
+    "label": "Left leg/body state",
+    "engine_group": "body_left",
+    "selector": "(super_class == 'ascending') & (side == 'left')",
+    "fidelity": "coarse_proxy",
+    "notes": "Pools all VNC-to-brain ascending neurons; not direct touch or proprioceptor input.",
+    "available": true
+  },
+  {
+    "key": "body_right",
+    "role": "upstream",
+    "label": "Right leg/body state",
+    "engine_group": "body_right",
+    "selector": "(super_class == 'ascending') & (side == 'right')",
+    "fidelity": "coarse_proxy",
+    "notes": "Pools all VNC-to-brain ascending neurons; not direct touch or proprioceptor input.",
+    "available": true
+  },
+  {
+    "key": "wing_sensory",
+    "role": "upstream",
+    "label": "Wing sensory afferents",
+    "engine_group": null,
+    "selector": "not present in the brain-only connectome",
+    "fidelity": "unavailable",
+    "notes": "Peripheral wing afferents and their VNC circuits are absent; use body_left/body_right only as explicitly coarse state proxies.",
+    "available": false
+  },
+  {
+    "key": "motor_proboscis",
+    "role": "downstream",
+    "label": "Proboscis motor output",
+    "engine_group": "motor_proboscis",
+    "selector": "(super_class == 'motor') & (nerve == 'MxLbN')",
+    "fidelity": "direct_motor",
+    "notes": "Pools maxillary-labial motor functions; not extension alone.",
+    "available": true
+  },
+  {
+    "key": "motor_pharynx",
+    "role": "downstream",
+    "label": "Pharyngeal motor output",
+    "engine_group": "motor_pharynx",
+    "selector": "(super_class == 'motor') & (nerve == 'PhN')",
+    "fidelity": "direct_motor",
+    "notes": "Direct feeding/swallowing-related output, pooled across actions.",
+    "available": true
+  },
+  {
+    "key": "motor_antenna",
+    "role": "downstream",
+    "label": "Antennal motor output",
+    "engine_group": "motor_antenna",
+    "selector": "(super_class == 'motor') & (nerve == 'AN')",
+    "fidelity": "direct_motor",
+    "notes": "Direct motor population pooled across side.",
+    "available": true
+  },
+  {
+    "key": "motor_occipital",
+    "role": "downstream",
+    "label": "Occipital motor output",
+    "engine_group": "motor_eye",
+    "selector": "(super_class == 'motor') & (nerve == 'ON')",
+    "fidelity": "direct_motor",
+    "notes": "The generated engine key is motor_eye, but ON means occipital nerve; compound eyes are fixed and this is not eye rotation.",
+    "available": true
+  },
+  {
+    "key": "motor_cervical_candidate",
+    "role": "downstream",
+    "label": "Cervical motor candidate",
+    "engine_group": "motor_neck",
+    "selector": "(super_class == 'motor') & (nerve == 'CV')",
+    "fidelity": "needs_validation",
+    "notes": "CV is the cervical connective, not a named neck peripheral nerve; do not interpret this as a validated neck effector.",
+    "available": true
+  },
+  {
+    "key": "descending_left",
+    "role": "downstream",
+    "label": "Left descending commands",
+    "engine_group": "descending_left",
+    "selector": "(super_class == 'descending') & (side == 'left')",
+    "fidelity": "coarse_proxy",
+    "notes": "Generic brain-to-VNC commands; anatomical side does not determine turn direction or distinguish walking from flight.",
+    "available": true
+  },
+  {
+    "key": "descending_right",
+    "role": "downstream",
+    "label": "Right descending commands",
+    "engine_group": "descending_right",
+    "selector": "(super_class == 'descending') & (side == 'right')",
+    "fidelity": "coarse_proxy",
+    "notes": "Generic brain-to-VNC commands; anatomical side does not determine turn direction or distinguish walking from flight.",
+    "available": true
+  },
+  {
+    "key": "descending_center",
+    "role": "downstream",
+    "label": "Central descending commands",
+    "engine_group": "descending_center",
+    "selector": "(super_class == 'descending') & (side == 'center')",
+    "fidelity": "coarse_proxy",
+    "notes": "Generic brain-to-VNC commands, not a behavior-specific decoder.",
+    "available": true
+  },
+  {
+    "key": "leg_motor",
+    "role": "downstream",
+    "label": "Leg motor output",
+    "engine_group": null,
+    "selector": "not present in the brain-only connectome",
+    "fidelity": "unavailable",
+    "notes": "Leg motor neurons and execution circuits reside in the absent VNC.",
+    "available": false
+  },
+  {
+    "key": "wing_motor",
+    "role": "downstream",
+    "label": "Wing/flight motor output",
+    "engine_group": null,
+    "selector": "not present in the brain-only connectome",
+    "fidelity": "unavailable",
+    "notes": "Wing motor neurons and execution circuits reside in the absent VNC; descending groups are only non-exclusive command proxies.",
+    "available": false
+  }
+]
